@@ -59,6 +59,11 @@ const productSchema = new mongoose.Schema(
       ref: "Brand",
       required: true,
     },
+    variant: {
+      type: [mongoose.Types.ObjectId],
+      ref: "Variant",
+      required: true,
+    },
   },
   {
     toObject: { virtuals: true },
@@ -73,10 +78,10 @@ productSchema.pre("save", (next) => {
   next();
 });
 
-productSchema.virtual("reviews", {
-  ref: "Review",
-  foreignField: "product",
-  localField: "_id",
-});
+// productSchema.virtual("reviews", {
+//   ref: "Review",
+//   foreignField: "product",
+//   localField: "_id",
+// });
 
 module.exports = mongoose.model("Product", productSchema);
