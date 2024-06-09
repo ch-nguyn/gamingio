@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const slugify = require("slugify");
 
 const productSchema = new mongoose.Schema(
   {
@@ -9,24 +10,16 @@ const productSchema = new mongoose.Schema(
       maxlength: [100, "Name can not be more than 100 characters"],
       unique: true,
     },
+    slug: {
+      type: String,
+      unique: true,
+    },
     description: {
       type: String,
       required: [true, "Please provide product description"],
       maxlength: [1000, "Description can not be more than 1000 characters"],
     },
     photo: [String],
-    // category: {
-    //     type: [String],
-    //     required: [true, "Please provide product category"],
-    // },
-    // tag: {
-    //     type: [String],
-    //     required: true,
-    // },
-    // brand: {
-    //     type: String,
-    //     required: [true, "Please provide product brand"],
-    // },
     inventory: {
       type: Number,
       default: 15,
@@ -51,12 +44,34 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    category: {
+      type: [mongoose.Types.ObjectId],
+      ref: "Category",
+      required: true,
+    },
+    tag: {
+      type: [mongoose.Types.ObjectId],
+      ref: "Tag",
+      required: true,
+    },
+    brand: {
+      type: [mongoose.Types.ObjectId],
+      ref: "Brand",
+      required: true,
+    },
   },
   {
     toObject: { virtuals: true },
     toJSON: { virtuals: true },
   },
 );
+
+productSchema.pre("save", (next) => {
+  if (this.isModified("name")) {
+    this.slug = slugify(this.name, { lower: true, strict: true });
+  }
+  next();
+});
 
 productSchema.virtual("reviews", {
   ref: "Review",
